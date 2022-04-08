@@ -1,0 +1,19 @@
+import { Model } from './../../model/schemas/model.schema';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
+
+export type BrandDocument = Brand & mongoose.Document;
+
+@Schema({ versionKey: false })
+export class Brand {
+  @Prop()
+  id: string;
+
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Model' }] })
+  models: Model[];
+}
+
+export const BrandSchema = SchemaFactory.createForClass(Brand);
