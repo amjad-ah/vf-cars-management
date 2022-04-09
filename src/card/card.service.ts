@@ -1,6 +1,6 @@
 import { CardDocument } from './schemas/card.schema';
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Card } from './schemas/card.schema';
 import { CreateCardDto } from './dto/create-card.dto';
@@ -18,8 +18,8 @@ export class CardService {
     return this.cardModel.find();
   }
 
-  findOne(id: string) {
-    return this.cardModel.findOne({ _id: id }).populate({
+  async findOne(id: string) {
+    const card = await this.cardModel.findOne({ _id: id }).populate({
       path: 'car',
       populate: [
         {
@@ -35,10 +35,19 @@ export class CardService {
         },
       ],
     });
+
+    if (!card) {
+      throw new NotFoundException(`Card with id ${id} not found`);
+    }
+
+    return card;
   }
 
-  remove(id: string) {
-    this.cardModel.deleteOne({ _id: id }).exec();
-    return true;
+  async remove(id: string) {
+    const deleted = await this.cardModel.findOneAndDelete({ _id: id });
+
+    if (!deleted) {
+      throw new NotFoundException(`Card with id ${id} not found`);
+    }
   }
 }

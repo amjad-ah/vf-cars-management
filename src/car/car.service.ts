@@ -1,6 +1,6 @@
 import { CarDocument } from './schemas/car.schema';
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Car } from './schemas/car.schema';
 import { CreateCarDto } from './dto/create-car.dto';
@@ -19,8 +19,8 @@ export class CarService {
     return this.carModel.find();
   }
 
-  findOne(id: string) {
-    return this.carModel
+  async findOne(id: string) {
+    const car = await this.carModel
       .findOne({ _id: id })
       .populate({
         path: 'model',
@@ -31,17 +31,28 @@ export class CarService {
         ],
       })
       .populate('employee');
+
+    if (!car) {
+      throw new NotFoundException(`Car with id ${id} not found`);
+    }
+
+    return car;
   }
 
-  update(id: string, updateCarDto: UpdateCarDto) {
-    const car = this.carModel.findOne({ _id: id });
-    car.updateOne(updateCarDto);
+  async update(id: string, updateCarDto: UpdateCarDto) {
+    const car = await this.carModel.findOneAndUpdate({ _id: id }, updateCarDto);
+    if (!car) {
+      throw new NotFoundException(`Car with id ${id} not found`);
+    }
 
-    return car.findOne();
+    return this.findOne(id);
   }
 
-  remove(id: string) {
-    this.carModel.deleteOne({ _id: id }).exec();
-    return true;
+  async remove(id: string) {
+    const deleted = await this.carModel.findOneAndDelete({ _id: id });
+
+    if (!deleted) {
+      throw new NotFoundException(`Car with id ${id} not found`);
+    }
   }
 }
