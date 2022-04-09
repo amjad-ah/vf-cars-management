@@ -1,6 +1,10 @@
 import { BrandDocument } from './schemas/brand.schema';
 import { Model } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Brand } from './schemas/brand.schema';
 import { CreateBrandDto } from './dto/create-brand.dto';
@@ -14,7 +18,20 @@ export class BrandService {
 
   create(createBrandDto: CreateBrandDto) {
     const createdBrand = new this.brandModel(createBrandDto);
-    return createdBrand.save();
+    return createdBrand
+      .save()
+      .then((data) => data)
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          const errors = {};
+
+          Object.keys(err.errors).forEach((key) => {
+            errors[key] = err.errors[key].message;
+          });
+          throw new BadRequestException({ errors });
+        }
+        throw err;
+      });
   }
 
   findAll() {

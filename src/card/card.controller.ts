@@ -23,6 +23,8 @@ export class CardController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.cardService.remove(id);
+    this.cardService.remove(id);
+
+    return { success: true };
   }
 }

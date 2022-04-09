@@ -1,6 +1,10 @@
 import { ModelDocument, Model as ModelSchema } from './schemas/model.schema';
 import { Model } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateModelDto } from './dto/create-model.dto';
 import { UpdateModelDto } from './dto/update-model.dto';
@@ -13,7 +17,20 @@ export class ModelService {
 
   create(createModelDto: CreateModelDto) {
     const createdCat = new this.modelModel(createModelDto);
-    return createdCat.save();
+    return createdCat
+      .save()
+      .then((data) => data)
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          const errors = {};
+
+          Object.keys(err.errors).forEach((key) => {
+            errors[key] = err.errors[key].message;
+          });
+          throw new BadRequestException({ errors });
+        }
+        throw err;
+      });
   }
 
   findAll() {

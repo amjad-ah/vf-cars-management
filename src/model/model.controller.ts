@@ -37,6 +37,8 @@ export class ModelController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.modelService.remove(id);
+    this.modelService.remove(id);
+
+    return { success: true };
   }
 }

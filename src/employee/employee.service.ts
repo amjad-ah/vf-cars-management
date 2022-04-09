@@ -1,6 +1,10 @@
 import { EmployeeDocument } from './schemas/employee.schema';
 import { Model } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Employee } from './schemas/employee.schema';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -14,7 +18,20 @@ export class EmployeeService {
 
   create(createEmployeeDto: CreateEmployeeDto) {
     const createdCat = new this.employeeModel(createEmployeeDto);
-    return createdCat.save();
+    return createdCat
+      .save()
+      .then((data) => data)
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          const errors = {};
+
+          Object.keys(err.errors).forEach((key) => {
+            errors[key] = err.errors[key].message;
+          });
+          throw new BadRequestException({ errors });
+        }
+        throw err;
+      });
   }
 
   findAll() {

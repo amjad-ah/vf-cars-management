@@ -37,6 +37,8 @@ export class BrandController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.brandService.remove(id);
+    this.brandService.remove(id);
+
+    return { success: true };
   }
 }

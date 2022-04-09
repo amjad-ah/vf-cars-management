@@ -5,9 +5,6 @@ export type BrandDocument = Brand & mongoose.Document;
 
 @Schema({ versionKey: false })
 export class Brand {
-  @Prop()
-  id: string;
-
   @Prop({ required: true })
   name: string;
 }

@@ -1,6 +1,10 @@
 import { CardDocument } from './schemas/card.schema';
 import { Model } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Card } from './schemas/card.schema';
 import { CreateCardDto } from './dto/create-card.dto';
@@ -11,7 +15,20 @@ export class CardService {
 
   create(createCardDto: CreateCardDto) {
     const createdCard = new this.cardModel({ ...createCardDto, credit: 10 });
-    return createdCard.save();
+    return createdCard
+      .save()
+      .then((data) => data)
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          const errors = {};
+
+          Object.keys(err.errors).forEach((key) => {
+            errors[key] = err.errors[key].message;
+          });
+          throw new BadRequestException({ errors });
+        }
+        throw err;
+      });
   }
 
   findAll() {

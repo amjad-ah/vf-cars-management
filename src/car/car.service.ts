@@ -1,6 +1,10 @@
 import { CarDocument } from './schemas/car.schema';
 import { Model } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Car } from './schemas/car.schema';
 import { CreateCarDto } from './dto/create-car.dto';
@@ -12,7 +16,24 @@ export class CarService {
 
   create(createCarDto: CreateCarDto) {
     const createdCar = new this.carModel(createCarDto);
-    return createdCar.save();
+    return createdCar
+      .save()
+      .then((data) => data)
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          const errors = {};
+
+          Object.keys(err.errors).forEach((key) => {
+            errors[key] = err.errors[key].message;
+          });
+          throw new BadRequestException({ errors });
+        }
+        // 11000 duplicate error code
+        if (err.code == 11000) {
+          throw new BadRequestException('Car already exists');
+        }
+        throw err;
+      });
   }
 
   findAll() {

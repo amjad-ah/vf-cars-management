@@ -7,7 +7,12 @@ export type CarDocument = Car & mongoose.Document;
 
 @Schema({ versionKey: false })
 export class Car {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Model' })
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Model',
+    immutable: true,
+  })
   model: Model;
 
   @Prop({
@@ -17,7 +22,7 @@ export class Car {
   })
   employee: Employee;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, immutable: true })
   plateNumber: number;
 }
 
