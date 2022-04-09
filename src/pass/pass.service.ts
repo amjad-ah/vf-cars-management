@@ -17,6 +17,7 @@ export class PassService {
     const date = new Date();
     date.setMinutes(date.getMinutes() - 1);
     const passInAMinute = await this.passModel.find({
+      card: createPassDto.card,
       createdAt: { $gt: date },
       cost: { $gt: 0 },
     });
