@@ -13,7 +13,9 @@ import { PassModule } from './pass/pass.module';
   imports: [
     BrandModule,
     ModelModule,
-    MongooseModule.forRoot('mongodb://localhost/cars'),
+    MongooseModule.forRoot(
+      'mongodb+srv://root:root@cars.sbrjf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+    ),
     EmployeeModule,
     CarModule,
     CardModule,

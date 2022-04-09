@@ -16,30 +16,29 @@ export class PassService {
   ) {}
 
   async create(createPassDto: CreatePassDto) {
-    // Here we should run this function atomically, using transactions,
-    // I tried to use transactions but it didn't work,
-    // as it is still not supported in mongo as a standalone database, it is available for replicas
-
-    // const session = await this.connection.startSession();
-    // session.startTransaction();
+    const session = await this.connection.startSession();
+    session.startTransaction();
     const date = new Date();
     date.setMinutes(date.getMinutes() - 1);
-    const passInAMinute = await this.passModel.find({
-      card: createPassDto.card,
-      createdAt: { $gt: date },
-      cost: { $gt: 0 },
-    });
-    // .session(session);
+    const passInAMinute = await this.passModel
+      .find({
+        card: createPassDto.card,
+        createdAt: { $gt: date },
+        cost: { $gt: 0 },
+      })
+      .session(session);
 
     const cost = passInAMinute.length > 0 ? 0 : 4;
-    const card = await this.cardModel.findById(createPassDto.card); // .session(session);
+    const card = await this.cardModel
+      .findById(createPassDto.card)
+      .session(session);
     if (card.credit < cost) {
-      // session.abortTransaction();
+      session.abortTransaction();
       throw new NoEnoughCredit('Not enough credit');
     }
-    await card.updateOne({ credit: card.credit - cost }); // .session(session);
+    await card.updateOne({ credit: card.credit - cost }).session(session);
     const createdPass = new this.passModel({ ...createPassDto, cost }); // .session(session);
-    // session.commitTransaction();
+    session.commitTransaction();
 
     return (await createdPass.save()).populate('card');
   }
