@@ -22,8 +22,8 @@ export class CardController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.cardService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.cardService.remove(id);
 
     return { success: true };
   }

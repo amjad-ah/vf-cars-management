@@ -19,7 +19,7 @@ export class ModelService {
     const createdCat = new this.modelModel(createModelDto);
     return createdCat
       .save()
-      .then((data) => data)
+      .then((data) => data.populate('brand'))
       .catch((err) => {
         if (err.name === 'ValidationError') {
           const errors = {};

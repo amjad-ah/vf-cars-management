@@ -36,8 +36,8 @@ export class BrandController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.brandService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.brandService.remove(id);
 
     return { success: true };
   }

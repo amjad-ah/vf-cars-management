@@ -18,7 +18,21 @@ export class CarService {
     const createdCar = new this.carModel(createCarDto);
     return createdCar
       .save()
-      .then((data) => data)
+      .then((data) => {
+        return data.populate([
+          {
+            path: 'model',
+            populate: [
+              {
+                path: 'brand',
+              },
+            ],
+          },
+          {
+            path: 'employee',
+          },
+        ]);
+      })
       .catch((err) => {
         if (err.name === 'ValidationError') {
           const errors = {};
@@ -37,7 +51,19 @@ export class CarService {
   }
 
   findAll() {
-    return this.carModel.find();
+    return this.carModel.find().populate([
+      {
+        path: 'model',
+        populate: [
+          {
+            path: 'brand',
+          },
+        ],
+      },
+      {
+        path: 'employee',
+      },
+    ]);
   }
 
   async findOne(id: string) {

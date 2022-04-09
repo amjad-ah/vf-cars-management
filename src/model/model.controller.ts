@@ -36,8 +36,8 @@ export class ModelController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.modelService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.modelService.remove(id);
 
     return { success: true };
   }

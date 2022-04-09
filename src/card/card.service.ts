@@ -17,7 +17,24 @@ export class CardService {
     const createdCard = new this.cardModel({ ...createCardDto, credit: 10 });
     return createdCard
       .save()
-      .then((data) => data)
+      .then((data) =>
+        data.populate({
+          path: 'car',
+          populate: [
+            {
+              path: 'model',
+              populate: [
+                {
+                  path: 'brand',
+                },
+              ],
+            },
+            {
+              path: 'employee',
+            },
+          ],
+        }),
+      )
       .catch((err) => {
         if (err.name === 'ValidationError') {
           const errors = {};
@@ -32,7 +49,22 @@ export class CardService {
   }
 
   findAll() {
-    return this.cardModel.find();
+    return this.cardModel.find().populate({
+      path: 'car',
+      populate: [
+        {
+          path: 'model',
+          populate: [
+            {
+              path: 'brand',
+            },
+          ],
+        },
+        {
+          path: 'employee',
+        },
+      ],
+    });
   }
 
   async findOne(id: string) {
