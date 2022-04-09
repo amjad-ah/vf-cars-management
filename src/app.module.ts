@@ -14,6 +14,7 @@ import { PassModule } from './pass/pass.module';
     BrandModule,
     ModelModule,
     MongooseModule.forRoot(
+      // TODO: this should be in a config file
       'mongodb+srv://root:root@cars.sbrjf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
     ),
     EmployeeModule,
